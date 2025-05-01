@@ -1,40 +1,83 @@
-import React from 'react'
+import React, { useState } from "react";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import config from "../config";
 
 const UpdateBlog = () => {
-  return (
-    <>
-        <form>
-  <div class="form-group">
-    <label for="exampleFormControlInput1">Email address</label>
-    <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
-  </div>
-  <div class="form-group">
-    <label for="exampleFormControlSelect1">Example select</label>
-    <select class="form-control" id="exampleFormControlSelect1">
-      <option>1</option>
-      <option>2</option>
-      <option>3</option>
-      <option>4</option>
-      <option>5</option>
-    </select>
-  </div>
-  <div class="form-group">
-    <label for="exampleFormControlSelect2">Example multiple select</label>
-    <select multiple class="form-control" id="exampleFormControlSelect2">
-      <option>1</option>
-      <option>2</option>
-      <option>3</option>
-      <option>4</option>
-      <option>5</option>
-    </select>
-  </div>
-  <div class="form-group">
-    <label for="exampleFormControlTextarea1">Example textarea</label>
-    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-  </div>
-</form>
-    </>
-  )
-}
+  const [inputs, setInputs] = useState({
+    title: "",
+    description: "",
+    image: "",
+  });
 
-export default UpdateBlog
+  const handleChange = (e) => {
+    setInputs((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Send updated blog data to the backend
+      const res = await axios.put(`${config.BASE_URL}/api/blogs/update`, inputs);
+      if (res.status === 200) {
+        toast.success("Blog updated successfully!");
+      }
+    } catch (error) {
+      console.error("Error updating blog:", error);
+      toast.error("Failed to update the blog. Please try again.");
+    }
+  };
+
+  return (
+    <div style={{ maxWidth: "600px", margin: "20px auto" }}>
+      <ToastContainer />
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="title">Blog Title</label>
+          <input
+            type="text"
+            className="form-control"
+            id="title"
+            name="title"
+            placeholder="Enter blog title"
+            value={inputs.title}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="description">Description</label>
+          <textarea
+            className="form-control"
+            id="description"
+            name="description"
+            rows="3"
+            placeholder="Enter blog description"
+            value={inputs.description}
+            onChange={handleChange}
+          ></textarea>
+        </div>
+        <div className="form-group">
+          <label htmlFor="image">Image URL</label>
+          <input
+            type="text"
+            className="form-control"
+            id="image"
+            name="image"
+            placeholder="Enter image URL"
+            value={inputs.image}
+            onChange={handleChange}
+          />
+        </div>
+        <button type="submit" className="btn btn-primary mt-3">
+          Update Blog
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default UpdateBlog;
